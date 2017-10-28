@@ -111,6 +111,12 @@
           <Button type="success" :loading="modal_loading" @click="add">保存</Button>
           <Button type="ghost" @click="handleReset" style="margin-left: 8px">重置</Button>
         </div>
+        <!--同步修改电影下载链接-->
+        <Table :context="self" :show-header="showheader"
+               :size="size" :data="downloadlink" :columns="downloadcolums" style="width: 100%">
+        </Table>
+        <!--修改下载链接操作-->
+        <editdownload ref="editdownload" :form="perdownloadlink"></editdownload>
       </Modal>
     </div>
   </div>
@@ -118,14 +124,20 @@
 
 <script type="text/ecmascript-6">
   import http from '../../assets/js/http.js';
+  import editdownload from './editdownloadlink.vue';
 
   export default {
     data() {
       return {
+        self: this,
         modal: false,
         modal_loading: false,
         form: {},
         editorOption: {},
+        showheader: true,
+        size: 'small',
+        perdownloadlink: [],
+        downloadlink: [],
         AddRule: {
 //          name: [
 //            {required: true, message: '请填写文章分类', trigger: 'blur'},
@@ -138,6 +150,9 @@
 //          ]
         }
       }
+    },
+    components: {
+      editdownload
     },
     methods: {
       add() {
@@ -162,6 +177,23 @@
               this.$Message.error('网络异常，请稍后重试。');
             })
           }
+        })
+      },
+      editdownload(params) {
+        this.perdownloadlink = params.row;
+        this.$refs.editdownload.modal = true
+      },
+      deletedownload(params) {
+        let id = params.row.id;
+        this.apiDelete('xunleipu/' + id).then((res) => {
+          this.handelResponse(res, (data, msg) => {
+            this.$Message.success(msg);
+          }, (data, msg) => {
+            this.$Message.error(msg);
+          })
+        }, (res) => {
+          //处理错误信息
+          this.$Message.error('网络异常，请稍后重试。');
         })
       },
       getXunleipu(id) {
@@ -192,6 +224,77 @@
     props: {
       type: {},
       tag: {},
+    },
+    computed: {
+      downloadcolums() {
+        let columns = []
+        let _this = this
+        columns.push({
+          title: '下载链接',
+          key: 'href',
+          sortable: true,
+          render(h, params) {
+            let text = params.row.text;
+            return h('a', {
+              attrs: {
+                href: params.row.href,
+                target: '_blank',
+                title: params.row.title
+              },
+            }, text)
+          }
+        });
+        columns.push({
+          title: '类型',
+          key: 'type_name',
+          sortable: true,
+          width: 100
+        });
+        columns.push(
+          {
+            title: '操作',
+            key: 'action',
+            align: 'center',
+            fixed: 'right',
+            width: 150,
+            render(h, params) {
+              return h('div', [
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'primary'
+                  },
+                  on: {
+                    click: function () {
+                      //不知道为什么这个地方不是我需要的this
+                      _this.editdownload(params)
+                    }
+                  }
+                }, '修改'),
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'error',
+                    style: 'margin-left:3px',
+                    title: '删除'
+                  },
+                  on: {
+                    click: function () {
+                      //不知道为什么这个地方不是我需要的this
+                      _this.deletedownload(params)
+                    }
+                  }
+                }, '删除'),
+              ]);
+            }
+          }
+        );
+        return columns;
+      }
     },
     mixins: [http]
   }

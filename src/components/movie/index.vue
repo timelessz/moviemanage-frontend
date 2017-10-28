@@ -1,8 +1,14 @@
 <template>
   <div>
     <div class="top">
-      活动:
+      电影名:
       <Input v-model="movie_name" placeholder="请输入活动名" style="width:300px;"></Input>
+      区域:
+      <Select v-model="region_id" style="width: 150px;" label-in-value filterable clearable>
+        <Option v-for="item in movieregion" :value="item.value" :key="item.value">
+          {{ item.label}}
+        </Option>
+      </Select>
       <Button type="primary" @click="queryData">查询</Button>
       <Button type="success" @click="add">添加</Button>
     </div>
@@ -44,6 +50,7 @@
         page: 1,
         rows: 10,
         movie_name: '',
+        region_id: 0,
         datas: [],
 //      电影类型
         movietype: {},
@@ -69,7 +76,7 @@
             movie_name: this.movie_name,
           }
         }
-        this.apiGet('movie', data).then((data) => {
+        this.apiGet('moviemanage', data).then((data) => {
           this.handelResponse(data, (data, msg) => {
             this.datas = data.rows
             this.total = data.total;
@@ -135,20 +142,6 @@
       tableColumns() {
         let columns = []
         let _this = this
-        if (this.showCheckbox) {
-          columns.push({
-            type: 'selection',
-            width: 60,
-            align: 'center'
-          })
-        }
-        if (this.showIndex) {
-          columns.push({
-            type: 'index',
-            width: 60,
-            align: 'center'
-          })
-        }
         columns.push(
           {
             title: '缩略图',
@@ -174,32 +167,83 @@
           }
         );
         columns.push({
-          title: '电影名',
-          key: 'name',
-          sortable: true,
+          title: '标题',
+          key: 'title',
         });
         columns.push({
-          title: '区域',
-          key: 'region_name',
-          sortable: true,
+          title: '阅读',
+          key: 'pvcount',
           width: 100
         });
         columns.push({
-          title: '区域',
+          title: '类型',
           key: 'region_name',
-          sortable: true,
           width: 100
         });
         columns.push({
           title: '年代',
           key: 'ages',
-          sortable: true,
           width: 100
+        });
+        columns.push({
+          title: '热门',
+          width: 80,
+          render(h, params) {
+            if (params.row.is_hot != '10') {
+              return h('div', [
+                h('Icon', {
+                  props: {
+                    type: 'checkmark'
+                  },
+                  attrs: {
+                    style: 'color:green'
+                  },
+                })
+              ]);
+            }
+            return h('div', [
+              h('Icon', {
+                props: {
+                  type: 'close-round'
+                },
+                attrs: {
+                  style: 'color:red'
+                },
+              })
+            ]);
+          }
+        });
+        columns.push({
+          title: '展现',
+          width: 70,
+          render(h, params) {
+            if (params.row.is_show != '10') {
+              return h('div', [
+                h('Icon', {
+                  props: {
+                    type: 'checkmark'
+                  },
+                  attrs: {
+                    style: 'color:green'
+                  },
+                })
+              ]);
+            }
+            return h('div', [
+              h('Icon', {
+                props: {
+                  type: 'close-round'
+                },
+                attrs: {
+                  style: 'color:red'
+                },
+              })
+            ]);
+          }
         });
         columns.push({
           title: '创建时间',
           key: 'created_at',
-          sortable: true,
           width: 180,
           render(h, params) {
             let create_date = params.row.created_at
@@ -229,7 +273,39 @@
                       _this.addtomovie(params)
                     }
                   }
-                }, '添加入库')
+                }, '修改'),
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'success',
+                    style: 'margin-left:3px',
+                    title: '设置'
+                  },
+                  on: {
+                    click: function () {
+                      //不知道为什么这个地方不是我需要的this
+                      _this.addtomovie(params)
+                    }
+                  }
+                }, '显示'),
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'success',
+                    style: 'margin-left:3px',
+                    title: '设置'
+                  },
+                  on: {
+                    click: function () {
+                      //不知道为什么这个地方不是我需要的this
+                      _this.addtomovie(params)
+                    }
+                  }
+                }, '首页大图'),
               ]);
             }
           }

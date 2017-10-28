@@ -1,10 +1,14 @@
 <template>
   <div>
     <div class="top">
-      活动:
-      <Input v-model="movie_name" placeholder="请输入活动名" style="width:300px;"></Input>
+      <Input v-model="movie_name" placeholder="请输入电影名" style="width:300px;"></Input>
+      <Input v-model="ages" placeholder="请输入年代" style="width:50px;"></Input>
+      <Select v-model="region_id" style="width: 150px;" label-in-value filterable clearable>
+        <Option v-for="item in movieregion" :value="item.value" :key="item.value">
+          {{item.label}}
+        </Option>
+      </Select>
       <Button type="primary" @click="queryData">查询</Button>
-      <!--<Button type="success" @click="add">添加</Button>-->
     </div>
     <div class="content" style="margin-top:10px;">
       <Table :context="self" :border="border" :stripe="stripe" :show-header="showheader"
@@ -44,7 +48,10 @@
         page: 1,
         rows: 10,
         movie_name: '',
+        region_id: 0,
+        ages: '',
         datas: [],
+        movieregion: {},
         addmovieinfo: {},
         movietag: {},
         movietype: {}
@@ -55,6 +62,7 @@
       this.getData();
       this.getMovieTag();
       this.getMovieType();
+      this.getMovieRegion();
     },
     methods: {
       getData() {
@@ -63,6 +71,8 @@
             page: this.page,
             rows: this.rows,
             movie_name: this.movie_name,
+            region_id: this.region_id,
+            ages: this.ages
           }
         }
         this.apiGet('xunleipu', data).then((data) => {
@@ -74,6 +84,18 @@
           })
         }, (data) => {
           this.$Message.error('网络异常，请稍后重试');
+        })
+      },
+      getMovieRegion() {
+        this.apiGet('movieregionlist').then((res) => {
+          this.handelResponse(res, (data, msg) => {
+            this.movieregion = data
+          }, (data, msg) => {
+            this.$Message.error(msg);
+          })
+        }, (res) => {
+          //处理错误信息
+          this.$Message.error('网络异常，请稍后重试。');
         })
       },
       changePage(page) {
