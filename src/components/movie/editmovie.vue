@@ -7,7 +7,7 @@
           <span>迅雷铺电影转移 {{form.region_name}} <a :href="form.href" target="_blank">{{form.title}}</a></span>
         </p>
         <div>
-          <Form ref="xunleipumovieadd" :model="form" :label-width="90" :rules="AddRule" class="node-add-form">
+          <Form ref="movieedit" :model="form" :label-width="90" :rules="AddRule" class="node-add-form">
             <Form-item label="电影页面标题" prop="name">
               <Input type="text" v-model="form.title" placeholder="电影页面标题"></Input>
             </Form-item>
@@ -108,15 +108,9 @@
           </Form>
         </div>
         <div slot="footer">
-          <Button type="success" :loading="modal_loading" @click="add">保存</Button>
+          <Button type="success" :loading="modal_loading" @click="edit">保存</Button>
           <Button type="ghost" @click="handleReset" style="margin-left: 8px">重置</Button>
         </div>
-        <!--同步修改电影下载链接-->
-        <Table :context="self" :show-header="showheader"
-               :size="size" :data="downloadlink" :columns="downloadcolums" style="width: 100%">
-        </Table>
-        <!--修改下载链接操作-->
-        <editdownload ref="editdownload" :form="perdownloadlink"></editdownload>
       </Modal>
     </div>
   </div>
@@ -124,7 +118,6 @@
 
 <script type="text/ecmascript-6">
   import http from '../../assets/js/http.js';
-  import editdownload from './editdownloadlink.vue';
 
   export default {
     data() {
@@ -137,7 +130,6 @@
         showheader: true,
         size: 'small',
         perdownloadlink: {},
-        downloadlink: [],
         AddRule: {
 //          name: [
 //            {required: true, message: '请填写文章分类', trigger: 'blur'},
@@ -151,16 +143,15 @@
         }
       }
     },
-    components: {
-      editdownload
-    },
+    components: {},
     methods: {
-      add() {
-        this.$refs.xunleipumovieadd.validate((valid) => {
+      edit() {
+        this.$refs.movieedit.validate((valid) => {
           if (valid) {
             this.modal_loading = true;
             let data = this.form;
-            this.apiPost('xunleipumovieadd', data).then((res) => {
+            let id = this.form.id;
+            this.apiPut('moviemanage/' + id, data).then((res) => {
               this.handelResponse(res, (data, msg) => {
                 this.modal = false;
                 this.$parent.getData();
@@ -179,29 +170,10 @@
           }
         })
       },
-      editdownload(params) {
-        this.perdownloadlink = params.row;
-        this.$refs.editdownload.modal = true
-      },
-      deletedownload(params) {
-        let id = params.row.id;
-        this.apiDelete('xunleipu/' + id).then((res) => {
+      getMovie(id) {
+        this.apiGet('moviemanage/' + id + '/edit').then((res) => {
           this.handelResponse(res, (data, msg) => {
-            this.$Message.success(msg);
-          }, (data, msg) => {
-            this.$Message.error(msg);
-          })
-        }, (res) => {
-          //处理错误信息
-          this.$Message.error('网络异常，请稍后重试。');
-        })
-      },
-      getXunleipu(id) {
-        this.apiGet('xunleipu/' + id).then((res) => {
-          this.handelResponse(res, (data, msg) => {
-            this.form = data.movie
-            this.form.tags = []
-            this.downloadlink = data.downloadlink
+            this.form = data
           }, (data, msg) => {
             this.$Message.error(msg);
           })

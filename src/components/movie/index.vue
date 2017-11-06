@@ -26,7 +26,9 @@
       </div>
     </div>
     <addmovie ref="addmovie" :region="movieregion" :tag="movietag" :type="movietype"></addmovie>
-    <!--<activitysave ref="save" :form="editinfo"></activitysave>-->
+    <editmovie ref="editmovie" :region="movieregion" :tag="movietag" :type="movietype" :form="editinfo"></editmovie>
+    <bigcoversrc ref="editbigcoversrc"></bigcoversrc>
+    <recommend ref="recommendmovie"></recommend>
   </div>
 </template>
 
@@ -35,6 +37,10 @@
   import date from '../../assets/js/date'
   //转移到电影库中
   import addmovie from './addmovie.vue'
+  import editmovie from './editmovie.vue'
+  import bigcoversrc from './editbigcoversrc.vue'
+  import recommend from './recommendmovie.vue'
+
 
   export default {
     data() {
@@ -58,9 +64,10 @@
         movietag: {},
 //      电影区域
         movieregion: {},
+        editinfo: {}
       }
     },
-    components: {addmovie},
+    components: {addmovie, editmovie, bigcoversrc,recommend},
     created() {
       this.getData();
       this.getMovieType();
@@ -136,6 +143,47 @@
       },
       add() {
         this.$refs.addmovie.modal = true
+      },
+      editmovie(params) {
+        //修改数据操作
+        this.$refs.editmovie.getMovie(params.row.id);
+        this.$refs.editmovie.modal = true
+      },
+      editbigcoversrc(params) {
+        //修稿编辑大图操作
+        this.$refs.editbigcoversrc.getImgSrc(params.row.id);
+        this.$refs.editbigcoversrc.modal = true
+      },
+      recommendmovie(params) {
+        this.$refs.recommendmovie.getRecommendReason(params.row.id);
+        this.$refs.recommendmovie.modal = true
+      },
+      hotmovie(params) {
+        console.log(params);
+        let id = params.row.id;
+        let _this = this
+        this.$Modal.confirm({
+          title: '确认设置为热门电影',
+          content: '您确定设置该电影为热门电影?',
+          okText: '设置热门',
+          cancelText: '取消',
+          onOk: (index) => {
+            _this.apiGet('sethotmovie/' + id).then((res) => {
+              _this.handelResponse(res, (data, msg) => {
+                _this.getData()
+                _this.$Message.success(msg);
+              }, (data, msg) => {
+                _this.$Message.error(msg);
+              })
+            }, (res) => {
+              //处理错误信息
+              _this.$Message.error('网络异常，请稍后重试');
+            })
+          },
+          onCancel: () => {
+            return false
+          }
+        })
       },
     },
     computed: {
@@ -257,7 +305,6 @@
             key: 'action',
             align: 'center',
             fixed: 'right',
-            width: 150,
             render(h, params) {
               return h('div', [
                 h('Button', {
@@ -270,7 +317,7 @@
                   on: {
                     click: function () {
                       //不知道为什么这个地方不是我需要的this
-                      _this.addtomovie(params)
+                      _this.editmovie(params)
                     }
                   }
                 }, '修改'),
@@ -281,15 +328,15 @@
                   attrs: {
                     type: 'success',
                     style: 'margin-left:3px',
-                    title: '设置'
+                    title: ''
                   },
                   on: {
                     click: function () {
                       //不知道为什么这个地方不是我需要的this
-                      _this.addtomovie(params)
+                      _this.editbigcoversrc(params)
                     }
                   }
-                }, '显示'),
+                }, '首页大图'),
                 h('Button', {
                   props: {
                     size: 'small'
@@ -297,15 +344,31 @@
                   attrs: {
                     type: 'success',
                     style: 'margin-left:3px',
-                    title: '设置'
+                    title: '设置为热门电影'
                   },
                   on: {
                     click: function () {
                       //不知道为什么这个地方不是我需要的this
-                      _this.addtomovie(params)
+                      _this.hotmovie(params)
                     }
                   }
-                }, '首页大图'),
+                }, '热门'),
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'success',
+                    style: 'margin-left:3px',
+                    title: '设置为博主推荐'
+                  },
+                  on: {
+                    click: function () {
+                      //不知道为什么这个地方不是我需要的this
+                      _this.recommendmovie(params)
+                    }
+                  }
+                }, '博主推荐'),
               ]);
             }
           }

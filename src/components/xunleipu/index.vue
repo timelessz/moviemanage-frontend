@@ -110,7 +110,7 @@
         this.getData();
       },
       addtomovie(params) {
-        console.log(params)
+//        console.log(params)
         this.$refs.addtomovie.getXunleipu(params.row.id);
         this.$refs.addtomovie.modal = true
       },
