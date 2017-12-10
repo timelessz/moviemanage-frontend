@@ -2,7 +2,7 @@
   <div>
     <div class="top">
       电影名:
-      <Input v-model="movie_name" placeholder="请输入活动名" style="width:300px;"></Input>
+      <Input v-model="movie_name" placeholder="请输入电影名" style="width:300px;"></Input>
       区域:
       <Select v-model="region_id" style="width: 150px;" label-in-value filterable clearable>
         <Option v-for="item in movieregion" :value="item.value" :key="item.value">
@@ -29,6 +29,10 @@
     <editmovie ref="editmovie" :region="movieregion" :tag="movietag" :type="movietype" :form="editinfo"></editmovie>
     <bigcoversrc ref="editbigcoversrc"></bigcoversrc>
     <recommend ref="recommendmovie"></recommend>
+    <addreview ref="addreview" :movie_id="review.movie_id" :movie_name="review.movie_name"
+               :type="review.type"></addreview>
+    <addmoviedownload ref="addmoviedownload"></addmoviedownload>
+
   </div>
 </template>
 
@@ -40,7 +44,8 @@
   import editmovie from './editmovie.vue'
   import bigcoversrc from './editbigcoversrc.vue'
   import recommend from './recommendmovie.vue'
-
+  import addreview from '../moviereview/addreview.vue'
+  import addmoviedownload from './addmoviedownload.vue'
 
   export default {
     data() {
@@ -64,10 +69,15 @@
         movietag: {},
 //      电影区域
         movieregion: {},
-        editinfo: {}
+        editinfo: {},
+        review: {
+          movie_id: 0,
+          movie_name: '',
+          type: 'movie'
+        }
       }
     },
-    components: {addmovie, editmovie, bigcoversrc,recommend},
+    components: {addmovie, editmovie, bigcoversrc, recommend, addreview,addmoviedownload},
     created() {
       this.getData();
       this.getMovieType();
@@ -117,6 +127,7 @@
           this.$Message.error('网络异常，请稍后重试。');
         })
       },
+
       getMovieRegion() {
         this.apiGet('movieregionlist').then((res) => {
           this.handelResponse(res, (data, msg) => {
@@ -157,6 +168,17 @@
       recommendmovie(params) {
         this.$refs.recommendmovie.getRecommendReason(params.row.id);
         this.$refs.recommendmovie.modal = true
+      },
+      reviewmovie(params) {
+        this.review.movie_id = params.row.id;
+        this.review.movie_name = params.row.title;
+        this.$refs.addreview.modal = true
+      },
+      addmoviedownload(params) {
+        //添加电影下载链接
+        this.review.movie_id = params.row.id;
+        this.review.movie_name = params.row.title;
+        this.$refs.addmoviedownload.modal = true
       },
       hotmovie(params) {
         console.log(params);
@@ -369,6 +391,54 @@
                     }
                   }
                 }, '博主推荐'),
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'success',
+                    style: 'margin-left:3px',
+                    title: '添加影评'
+                  },
+                  on: {
+                    click: function () {
+                      //不知道为什么这个地方不是我需要的this
+                      _this.reviewmovie(params)
+                    }
+                  }
+                }, '影评'),
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'success',
+                    style: 'margin-left:3px',
+                    title: '改下载'
+                  },
+                  on: {
+                    click: function () {
+                      //不知道为什么这个地方不是我需要的this
+                      _this.reviewmovie(params)
+                    }
+                  }
+                }, '改下载'),
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'success',
+                    style: 'margin-left:3px',
+                    title: '加下载'
+                  },
+                  on: {
+                    click: function () {
+                      //不知道为什么这个地方不是我需要的this
+                      _this.addmoviedownload(params)
+                    }
+                  }
+                }, '加下载'),
               ]);
             }
           }

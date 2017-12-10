@@ -77,17 +77,25 @@
       <Col :span="spanLeft" class="layout-menu-left">
       <Menu active-name="activeName" theme="dark" width="auto">
         <div class="layout-logo-left"></div>
+        <MenuItem name="1">
+          <Icon type="ios-keypad" :size="iconSize"></Icon>
+          <span class="layout-text" @click="routerChange('/admin/movie','电影管理')">电影管理</span>
+        </MenuItem>
         <MenuItem name="2">
           <Icon type="ios-keypad" :size="iconSize"></Icon>
-          <span class="layout-text" @click="routerChange('/admin/movie','迅雷铺电影')">电影管理</span>
+          <span class="layout-text" @click="routerChange('/admin/moviedownloadlink','电影下载链接管理')">电影下载链接管理</span>
         </MenuItem>
-        <MenuItem name="1">
+        <MenuItem name="3">
           <Icon type="ios-navigate" :size="iconSize"></Icon>
           <span class="layout-text" @click="routerChange('/admin/xunleipu','迅雷铺电影')">迅雷铺电影</span>
         </MenuItem>
-        <MenuItem name="3">
+        <MenuItem name="4">
+          <Icon type="ios-navigate" :size="iconSize"></Icon>
+          <span class="layout-text" @click="routerChange('/admin/hao6v','HAO6V电影')">HAO6V电影</span>
+        </MenuItem>
+        <MenuItem name="5">
           <Icon type="ios-analytics" :size="iconSize"></Icon>
-          <span class="layout-text">选项 3</span>
+          <span class="layout-text" @click="routerChange('/admin/moviepreview','电影影评')">电影影评</span>
         </MenuItem>
       </Menu>
       </Col>

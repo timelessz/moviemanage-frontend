@@ -177,7 +177,6 @@
           if (valid) {
             this.modal_loading = true;
             let data = this.form;
-            console.log(data)
             this.apiPost('movie', data).then((res) => {
               this.handelResponse(res, (data, msg) => {
                 this.modal = false;
