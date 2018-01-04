@@ -42,7 +42,7 @@
       return {
         movie_id: 0,
         movie_name: '',
-        type: '',
+        type: {},
         self: this,
         border: true,
         stripe: true,

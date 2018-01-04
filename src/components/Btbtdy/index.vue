@@ -75,7 +75,7 @@
             ages: this.ages
           }
         }
-        this.apiGet('hao6v', data).then((data) => {
+        this.apiGet('btbtdy', data).then((data) => {
           this.handelResponse(data, (data, msg) => {
             this.datas = data.rows
             this.total = data.total;
@@ -110,7 +110,7 @@
         this.getData();
       },
       addtomovie(params) {
-        this.$refs.addtomovie.gethao6v(params.row.id);
+        this.$refs.addtomovie.getbtbtdy(params.row.id);
         this.$refs.addtomovie.modal = true
       },
       getMovieTag() {

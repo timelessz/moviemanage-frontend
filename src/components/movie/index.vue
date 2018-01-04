@@ -26,13 +26,12 @@
       </div>
     </div>
     <addmovie ref="addmovie" :region="movieregion" :tag="movietag" :type="movietype"></addmovie>
-    <editmovie ref="editmovie" :region="movieregion" :tag="movietag" :type="movietype" :form="editinfo"></editmovie>
+    <editmovie ref="editmovie" :tag="movietag" :type="movietype"></editmovie>
     <bigcoversrc ref="editbigcoversrc"></bigcoversrc>
     <recommend ref="recommendmovie"></recommend>
     <addreview ref="addreview" :movie_id="review.movie_id" :movie_name="review.movie_name"
                :type="review.type"></addreview>
     <addmoviedownload ref="addmoviedownload"></addmoviedownload>
-
   </div>
 </template>
 
@@ -77,7 +76,7 @@
         }
       }
     },
-    components: {addmovie, editmovie, bigcoversrc, recommend, addreview,addmoviedownload},
+    components: {addmovie, editmovie, bigcoversrc, recommend, addreview, addmoviedownload},
     created() {
       this.getData();
       this.getMovieType();
@@ -127,7 +126,6 @@
           this.$Message.error('网络异常，请稍后重试。');
         })
       },
-
       getMovieRegion() {
         this.apiGet('movieregionlist').then((res) => {
           this.handelResponse(res, (data, msg) => {
@@ -176,9 +174,10 @@
       },
       addmoviedownload(params) {
         //添加电影下载链接
-        this.review.movie_id = params.row.id;
-        this.review.movie_name = params.row.title;
-        this.$refs.addmoviedownload.modal = true
+        let movie_id = params.row.id;
+        let movie_name = params.row.title;
+        this.$refs.addmoviedownload.getMovieDownload(movie_id, movie_name);
+        this.$refs.addmoviedownload.modal = true;
       },
       hotmovie(params) {
         console.log(params);
@@ -407,22 +406,6 @@
                     }
                   }
                 }, '影评'),
-                h('Button', {
-                  props: {
-                    size: 'small'
-                  },
-                  attrs: {
-                    type: 'success',
-                    style: 'margin-left:3px',
-                    title: '改下载'
-                  },
-                  on: {
-                    click: function () {
-                      //不知道为什么这个地方不是我需要的this
-                      _this.reviewmovie(params)
-                    }
-                  }
-                }, '改下载'),
                 h('Button', {
                   props: {
                     size: 'small'

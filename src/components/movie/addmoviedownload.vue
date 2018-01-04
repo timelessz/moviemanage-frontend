@@ -11,14 +11,14 @@
             <Input type="text" v-model="form.href" placeholder="请输入下载链接"></Input>
           </Form-item>
           <Form-item label="下载text" prop="text">
-            <Input type="text" v-model="form.text" placeholder="请输入下载链接"></Input>
+            <Input type="text" v-model="form.text" placeholder="请输入下载链接展现text"></Input>
           </Form-item>
           <Form-item label="密码" prop="pwd">
             <Input type="text" v-model="form.pwd" placeholder="百度云盘请输入密码"></Input>
           </Form-item>
           <Form-item label="类型" prop="movietag">
-            <Select ref="downloadtype" v-model="form.type_id" multiple>
-              <Option v-for="item in tag" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            <Select ref="downloadtype" v-model="form.type_id" label-in-value @on-change="typechange">
+              <Option v-for="item in downloadtype" :value="item.id" :key="item.id">{{ item.text }}</Option>
             </Select>
           </Form-item>
         </Form>
@@ -39,22 +39,28 @@
         modal: false,
         modal_loading: false,
         form: {
-          coversrc: ''
+          movie_id: 0,
+          movie_name: ''
         },
+        downloadtype: {},
         SaveRule: {
-//          name: [
-//            {required: true, message: '请填写活动/创意名', trigger: 'blur'},
-//          ],
+          href: [
+            {required: true, message: '请填写下载链接', trigger: 'blur'},
+          ],
+          text: [
+            {required: true, message: '请填写下载链接text', trigger: 'blur'},
+          ]
         }
       }
     },
     computed: {},
     methods: {
-      getImgSrc(id) {
-        this.apiGet('getmoviecoversrc/' + id).then((res) => {
+      getMovieDownload(movie_id, movie_name) {
+        this.form.movie_id = movie_id
+        this.form.movie_name = movie_name
+        this.apiGet('moviedownloadtype').then((res) => {
           this.handelResponse(res, (data, msg) => {
-            this.form.coversrc = data.bigcoversrc
-            this.form.id = id
+            this.downloadtype = data
           }, (data, msg) => {
             this.$Message.error(msg);
           })
@@ -64,30 +70,39 @@
         })
       },
       save() {
-        if (!this.form.coversrc) {
-          this.$Message.error('保存失败，请填写轮播图链接。');
-          return;
+        if (!this.form.type_id) {
+          this.$Message.error('请选择下载链接类型的分类。');
+          return
         }
-        this.modal_loading = true;
-        let data = this.form;
-        this.apiPost('setmoviecoversrc', data).then((res) => {
-          this.handelResponse(res, (data, msg) => {
-            this.modal = false;
-            this.$Message.success(msg);
-            this.modal_loading = false;
-            this.form = {};
-          }, (data, msg) => {
-            this.modal_loading = false;
-            this.$Message.error(msg);
-          })
-        }, (res) => {
-          //处理错误信息
-          this.modal_loading = false;
-          this.$Message.error('网络异常，请稍后重试。');
+        this.$refs.addmoviedownload.validate((valid) => {
+          if (valid) {
+            this.modal_loading = true;
+            let data = this.form;
+            this.apiPost('moviedownloadlink', data).then((res) => {
+              this.handelResponse(res, (data, msg) => {
+                this.modal = false;
+                this.$Message.success(msg);
+                this.modal_loading = false;
+                this.form = {};
+              }, (data, msg) => {
+                this.modal_loading = false;
+                this.$Message.error(msg);
+              })
+            }, (res) => {
+              //处理错误信息
+              this.modal_loading = false;
+              this.$Message.error('网络异常，请稍后重试。');
+            })
+          }
         })
+
+
+      },
+      typechange(value) {
+        this.form.type_name = value.label
+        this.form.type_id = value.value
       }
     },
     mixins: [http],
-    props: {}
   }
 </script>

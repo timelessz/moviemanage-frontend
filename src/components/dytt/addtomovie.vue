@@ -7,12 +7,7 @@
           <span>迅雷铺电影转移 {{form.region_name}} <a :href="form.href" target="_blank">{{form.title}}</a></span>
         </p>
         <div>
-          <!--同步修改电影下载链接-->
-          <Table :context="self" :show-header="showheader"
-                 :size="size" :data="downloadlink" :columns="downloadcolums" style="width: 100%">
-          </Table>
-          <br>
-          <Form ref="movieedit" :model="form" :label-width="90" :rules="AddRule" class="node-add-form">
+          <Form ref="dyttmovieadd" :model="form" :label-width="90" :rules="AddRule" class="node-add-form">
             <Form-item label="电影页面标题" prop="name">
               <Input type="text" v-model="form.title" placeholder="电影页面标题"></Input>
             </Form-item>
@@ -113,11 +108,16 @@
           </Form>
         </div>
         <div slot="footer">
-          <Button type="success" :loading="modal_loading" @click="edit">保存</Button>
+          <Button type="success" :loading="modal_loading" @click="add">保存</Button>
           <Button type="ghost" @click="handleReset" style="margin-left: 8px">重置</Button>
         </div>
+        <!--同步修改电影下载链接-->
+        <Table :context="self" :show-header="showheader"
+               :size="size" :data="downloadlink" :columns="downloadcolums" style="width: 100%">
+        </Table>
+        <!--修改下载链接操作-->
+        <editdownload ref="editdownload" :form="perdownloadlink"></editdownload>
       </Modal>
-      <editdownload ref="editdownload" :form="perdownloadlink"></editdownload>
     </div>
   </div>
 </template>
@@ -132,14 +132,12 @@
         self: this,
         modal: false,
         modal_loading: false,
-        form: {
-          content: ''
-        },
-        downloadlink: [],
+        form: {},
         editorOption: {},
         showheader: true,
         size: 'small',
         perdownloadlink: {},
+        downloadlink: [],
         AddRule: {
 //          name: [
 //            {required: true, message: '请填写文章分类', trigger: 'blur'},
@@ -153,15 +151,16 @@
         }
       }
     },
-    components: {editdownload},
+    components: {
+      editdownload
+    },
     methods: {
-      edit() {
-        this.$refs.movieedit.validate((valid) => {
+      add() {
+        this.$refs.dyttmovieadd.validate((valid) => {
           if (valid) {
             this.modal_loading = true;
             let data = this.form;
-            let id = this.form.id;
-            this.apiPut('moviemanage/' + id, data).then((res) => {
+            this.apiPost('dyttmovieadd', data).then((res) => {
               this.handelResponse(res, (data, msg) => {
                 this.modal = false;
                 this.$parent.getData();
@@ -184,10 +183,24 @@
         this.perdownloadlink = params.row;
         this.$refs.editdownload.modal = true
       },
-      getMovie(id) {
-        this.apiGet('moviemanage/' + id + '/edit').then((res) => {
+      deletedownload(params) {
+        let id = params.row.id;
+        this.apiDelete('dytt/' + id).then((res) => {
+          this.handelResponse(res, (data, msg) => {
+            this.$Message.success(msg);
+          }, (data, msg) => {
+            this.$Message.error(msg);
+          })
+        }, (res) => {
+          //处理错误信息
+          this.$Message.error('网络异常，请稍后重试。');
+        })
+      },
+      getdytt(id) {
+        this.apiGet('dytt/' + id).then((res) => {
           this.handelResponse(res, (data, msg) => {
             this.form = data.movie
+            this.form.tags = []
             this.downloadlink = data.downloadlink
           }, (data, msg) => {
             this.$Message.error(msg);
@@ -207,25 +220,10 @@
       updateComment(data) {
         this.form.comment = data
       },
-      editdownload(params) {
-        this.perdownloadlink = params.row;
-        this.$refs.editdownload.modal = true
-      },
-      deletedownload(params) {
-        let id = params.row.id;
-        let movie_id = params.row.movie_id;
-        this.apiDelete('moviedownloadlink/' + id).then((res) => {
-          this.handelResponse(res, (data, msg) => {
-            this.$Message.success(msg);
-            this.getMovie(movie_id)
-          }, (data, msg) => {
-            this.$Message.error(msg);
-          })
-        }, (res) => {
-          //处理错误信息
-          this.$Message.error('网络异常，请稍后重试。');
-        })
-      },
+    },
+    props: {
+      type: {},
+      tag: {},
     },
     computed: {
       downloadcolums() {
@@ -297,10 +295,6 @@
         );
         return columns;
       }
-    },
-    props: {
-      type: {},
-      tag: {},
     },
     mixins: [http]
   }

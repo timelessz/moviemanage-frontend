@@ -91,9 +91,17 @@
         </MenuItem>
         <MenuItem name="4">
           <Icon type="ios-navigate" :size="iconSize"></Icon>
-          <span class="layout-text" @click="routerChange('/admin/hao6v','HAO6V电影')">HAO6V电影</span>
+          <span class="layout-text" @click="routerChange('/admin/dytt','电影天堂')">电影天堂</span>
         </MenuItem>
         <MenuItem name="5">
+          <Icon type="ios-navigate" :size="iconSize"></Icon>
+          <span class="layout-text" @click="routerChange('/admin/hao6v','HAO6V电影')">HAO6V电影</span>
+        </MenuItem>
+        <MenuItem name="6">
+          <Icon type="ios-navigate" :size="iconSize"></Icon>
+          <span class="layout-text" @click="routerChange('/admin/btbtdy','HAO6V电影')">BTBT电影</span>
+        </MenuItem>
+        <MenuItem name="10">
           <Icon type="ios-analytics" :size="iconSize"></Icon>
           <span class="layout-text" @click="routerChange('/admin/moviepreview','电影影评')">电影影评</span>
         </MenuItem>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <Modal
-      v-model="modal" width="900" style="position: relative;z-index: 1100;">
+      v-model="modal" width="900" :transfer="transfer" style="position: relative;z-index: 1100;">
       <p slot="header">
         <span>修改模板</span>
       </p>
@@ -43,7 +43,8 @@
           directory_name: [
             {required: true, message: '请填写活动文件夹名', trigger: 'blur'}
           ]
-        }
+        },
+        transfer: true
       }
     },
     computed: {},
@@ -54,12 +55,10 @@
             this.modal_loading = true;
             let data = this.form;
             //更新数据
-            console.log(data);
-            this.apiPut('Xunleipudownloadlink/' + data.id, data).then((res) => {
+            this.apiPut('btbtdydownloadlink/' + data.id, data).then((res) => {
               this.handelResponse(res, (data, msg) => {
                 this.modal = false;
                 //父亲节点重新请求下载链接
-//                this.$parent.getDownloadData();
                 this.$Message.success(msg);
                 this.modal_loading = false;
                 this.$refs.doanloadsave.resetFields();

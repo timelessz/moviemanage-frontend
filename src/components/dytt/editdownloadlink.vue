@@ -1,7 +1,7 @@
 <template>
   <div>
     <Modal
-      v-model="modal" width="900" style="position: relative;z-index: 1100;">
+      v-model="modal" width="900">
       <p slot="header">
         <span>修改模板</span>
       </p>
@@ -55,7 +55,7 @@
             let data = this.form;
             //更新数据
             console.log(data);
-            this.apiPut('Xunleipudownloadlink/' + data.id, data).then((res) => {
+            this.apiPut('dyttdownloadlink/' + data.id, data).then((res) => {
               this.handelResponse(res, (data, msg) => {
                 this.modal = false;
                 //父亲节点重新请求下载链接

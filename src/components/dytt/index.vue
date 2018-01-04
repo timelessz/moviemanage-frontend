@@ -23,8 +23,9 @@
         </div>
       </div>
     </div>
-    <addtomovie ref="addtomovie" :tag="movietag" :type="movietype" :region="movieregion"></addtomovie>
-    <!--<activitysave ref="save" :form="editinfo"></activitysave>-->
+    <addtomovie ref="addtomovie" :tag="movietag" :type="movietype"></addtomovie>
+    <imgset ref="movieimg"></imgset>
+
   </div>
 </template>
 
@@ -33,6 +34,7 @@
   import date from '../../assets/js/date'
   //转移到电影库中
   import addtomovie from './addtomovie.vue'
+  import imgset from '../Movieimg/movieimg.vue'
 
   export default {
     data() {
@@ -57,7 +59,7 @@
         movietype: {}
       }
     },
-    components: {addtomovie},
+    components: {addtomovie,imgset},
     created() {
       this.getData();
       this.getMovieTag();
@@ -75,7 +77,7 @@
             ages: this.ages
           }
         }
-        this.apiGet('hao6v', data).then((data) => {
+        this.apiGet('dytt', data).then((data) => {
           this.handelResponse(data, (data, msg) => {
             this.datas = data.rows
             this.total = data.total;
@@ -110,8 +112,13 @@
         this.getData();
       },
       addtomovie(params) {
-        this.$refs.addtomovie.gethao6v(params.row.id);
+//        console.log(params)
+        this.$refs.addtomovie.getdytt(params.row.id);
         this.$refs.addtomovie.modal = true
+      },
+      getmovieimg(params) {
+        this.$refs.movieimg.getimgset(params.row.id, 'dytt');
+        this.$refs.movieimg.modal = true
       },
       getMovieTag() {
         this.apiGet('movietaglist').then((res) => {
@@ -283,8 +290,20 @@
                       _this.addtomovie(params)
                     }
                   }
-                }, '添加入库')
-
+                }, '添加入库'),
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'primary'
+                  },
+                  on: {
+                    click: function () {
+                      _this.getmovieimg(params)
+                    }
+                  }
+                }, '图集')
               ]);
             }
           }

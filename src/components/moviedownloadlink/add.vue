@@ -88,7 +88,7 @@
     },
     mixins: [http],
     props: {
-      type: []
+      type: {}
     }
   }
 </script>

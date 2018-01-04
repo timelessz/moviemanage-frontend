@@ -24,7 +24,7 @@
       </div>
     </div>
     <addtomovie ref="addtomovie" :tag="movietag" :type="movietype"></addtomovie>
-    <!--<activitysave ref="save" :form="editinfo"></activitysave>-->
+    <imgset ref="movieimg"></imgset>
   </div>
 </template>
 
@@ -33,6 +33,7 @@
   import date from '../../assets/js/date'
   //转移到电影库中
   import addtomovie from './addtomovie.vue'
+  import imgset from '../Movieimg/movieimg.vue'
 
   export default {
     data() {
@@ -57,7 +58,7 @@
         movietype: {}
       }
     },
-    components: {addtomovie},
+    components: {addtomovie, imgset},
     created() {
       this.getData();
       this.getMovieTag();
@@ -110,9 +111,12 @@
         this.getData();
       },
       addtomovie(params) {
-//        console.log(params)
         this.$refs.addtomovie.getXunleipu(params.row.id);
         this.$refs.addtomovie.modal = true
+      },
+      getmovieimg(params) {
+        this.$refs.movieimg.getimgset(params.row.id, 'xunleipu');
+        this.$refs.movieimg.modal = true
       },
       getMovieTag() {
         this.apiGet('movietaglist').then((res) => {
@@ -284,7 +288,21 @@
                       _this.addtomovie(params)
                     }
                   }
-                }, '添加入库')
+                }, '添加入库'),
+                h('Button', {
+                  props: {
+                    size: 'small'
+                  },
+                  attrs: {
+                    type: 'primary'
+                  },
+                  on: {
+                    click: function () {
+                      _this.getmovieimg(params)
+                    }
+                  }
+                }, '图集'),
+
               ]);
             }
           }
